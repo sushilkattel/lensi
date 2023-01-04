@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
 import { ActivityIndicator } from 'react-native';
 
+import auth from "../config/firebase";
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { registerUser } from '../config/firebase';
+
 import {
   Provider as PaperProvider,
   DefaultTheme,
@@ -17,29 +21,18 @@ const SignUp = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
 
   const handleSignUp = () => {
-    /*
-    setLoading(true);
-    auth()
-      .createUserWithEmailAndPassword(email, password)
-      .then(() => {
-        const user = auth().currentUser;
-        user.updateProfile({
-          displayName: name,
-          username: username,
-        });
-        setLoading(false);
-        navigation.navigate('Home');
-      })
-      .catch((error) => {
-        setLoading(false);
-        setError(error.message);
-      }); */
-      return null;
-  };
+    if (email !== '' && password !== '') {
+      registerUser(email, password);
+    }
+  }
 
   return (
     <PaperProvider style={styles.container}>
       <View style={styles.container}>
+        <View style={styles.headers}>
+          <Text style={styles.headText}>Hey!</Text>
+          <Text style={styles.joinText}>Join Now</Text>
+        </View>
       <View style={styles.bottomContainer}>
       <Card style={styles.mainCard}>
         <Text style={{ fontSize: 25, fontWeight: 'bold', marginBottom: 20, minWidth: '100%', textAlign: "center"}}>
@@ -53,14 +46,14 @@ const SignUp = ({ navigation }) => {
         <TextInputPaper
           label="Email"
           value={email}
-          onChangeText={setEmail}
+          onChangeText={(text) => {setEmail(text)}}
           mode="outlined"
           style={styles.forms}
         />
         <TextInputPaper
           label="Password"
           value={password}
-          onChangeText={setPassword}
+          onChangeText={(text) => {setPassword(text)}}
           mode="outlined"
           style={styles.forms}
           secureTextEntry
@@ -94,14 +87,33 @@ const SignUp = ({ navigation }) => {
       height: "100%",
       backgroundColor: "#1D637A",
     },
-    bottomContainer: {
-      flex: 1,
+    headers: {
       justifyContent: 'flex-end',
+      alignItems:'flex-start',
+      marginLeft: '10%',
+      height: '35%'
+    },
+    headText: {
+      fontSize: 50,
+      color: 'white',
+      fontWeight: 'bold'
+    },
+    joinText: {
+      fontSize: 40,
+      color: 'white',
+      fontWeight: 'bold'
+    },
+    bottomContainer: {
+      height: "60%",
+      width: "100%",
+      justifyContent: 'center',
+      alignItems: 'center',
+      position: 'absolute', //Here is the trick
+      bottom: 0, //Here is the trick
     },
     mainCard: {
       width: '100%',
-      height: '80%',
-      paddingBottom: "50%",
+      height: '100%',
       paddingTop: "10%",
       borderRadius: 50
     },
@@ -109,7 +121,8 @@ const SignUp = ({ navigation }) => {
       minWidth: "80%",
       maxWidth: "80%",
       marginBottom: 20,
-      alignSelf: 'center'
+      alignSelf: 'center',
+      borderRadius: 50
     }
   })
   export default SignUp;
