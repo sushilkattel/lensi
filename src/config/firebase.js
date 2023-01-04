@@ -1,4 +1,4 @@
-import {API_KEY, AUTH_DOMAIN, PROJECT_ID, STORAGE_BUCKET, MESSAGING_SENDER_ID, APP_ID, MEASUREMENT_ID} from "@env";
+import {API_KEY, AUTH_DOMAIN, PROJECT_ID, STORAGE_BUCKET, MESSAGING_SENDER_ID, APP_ID} from "@env";
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth"
 import { getAnalytics } from "firebase/analytics";
@@ -16,7 +16,6 @@ const firebaseConfig = {
   storageBucket: STORAGE_BUCKET,
   messagingSenderId: MESSAGING_SENDER_ID,
   appId: APP_ID,
-  measurementId: MEASUREMENT_ID
 };
 
 const firebaseApp = initializeApp(firebaseConfig);
