@@ -25,7 +25,7 @@ return (
 
 function HomeStack() {
   return (
-    <Stack.Navigator defaultScreenOptions={Home}>
+    <Stack.Navigator defaultScreenOptions={Home} screenOptions={{ headerShown: false }}>
       <Stack.Screen name='Home' component={Home} />
     </Stack.Navigator>
   );
