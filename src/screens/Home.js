@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, Dimensions, Image } from 'react-native';
-import { Button } from 'react-native-paper';
-import { logout } from '../config/firebase';
+import React, { useEffect, useState } from 'react';
+import { View, TextInput, StyleSheet, Dimensions, Image, TouchableOpacity } from 'react-native';
+import { Button, Text } from 'react-native-paper';
+import { logout, setEndData, setStartData } from '../config/firebase';
 
 import {
   Provider as PaperProvider,
@@ -13,9 +13,61 @@ import {
   Divider,
   IconButton,
 } from 'react-native-paper';
+import { getHealthColor, user } from '../components/utils';
+import MenuPop from '../components/MenuPop';
+
 
 const Home = ({ navigation }) => {
-  const healthStatus = "GOOD"
+  const userTemp = useState({days: 0, worn: 0, remaining: 0, startExists: false, scoreStatus: "GOOD"})
+  const [User, setUser] = useState(userTemp);
+  const [startIcon, setStartIcon] = useState(User.startExists);
+  const [healthImg, setHealthImg] = useState(require("../assets/GOOD.png"))
+  const [getForceUpdate, setForceUpdate] = useState(false);
+
+  const healthStatus = User.scoreStatus;
+
+  const handleStart = async () => {
+    if(startIcon == "play") {
+      setStartData()
+      setStartIcon("stop")
+    }
+    if(startIcon == "stop") {
+      await setEndData()
+      setStartIcon("play")
+      setForceUpdate(true);
+    }
+    return null;
+  }
+
+
+  useEffect(() => {
+    if(getForceUpdate == true) {
+      console.log("SET TO FALSE")
+      setForceUpdate(false);
+    }
+    const fetch = async () => {
+      const currUser = await user();
+      setUser(currUser);
+      const getStartStatus = () => {
+        if(currUser.startExists) {
+          return "stop";
+        }
+        return "play";
+      }
+      setStartIcon(getStartStatus());
+      if(await healthStatus == "OK") {
+        setHealthImg(require("../assets/OK.png"))
+      }
+      if(await healthStatus == "BAD") {
+        setHealthImg(require("../assets/BAD.png"))
+      }
+    }
+    fetch();
+  }, [getForceUpdate])
+  
+  const healthColor = getHealthColor(healthStatus);
+  //Control image of health
+
   return (
     <PaperProvider style={styles.container}>
       <View style={styles.container}>
@@ -29,32 +81,34 @@ const Home = ({ navigation }) => {
               >Sign Out</Button>
             </View>
             </View>
-          <Avatar.Image size={150} source={require('../assets/good.png')} backgroundColor={"transparent"}/>
+          <Avatar.Image size={150} source={healthImg} backgroundColor={"transparent"}/>
           <Text style={styles.healthHeader}>LENS HEALTH</Text>
-          <Text style={styles.health}>{healthStatus}</Text>
+          <Text style={[styles.health, {color: healthColor}]}>{healthStatus}</Text>
+          <TouchableOpacity onPress={() => handleStart()}>
+          <IconButton
+          icon={startIcon}
+          iconColor={"#1D637A"}
+          backgroundColor={"white"}
+          size={20}
+          style={{alignSelf: "center",}}
+        />
+        </TouchableOpacity>
         </View>
       <View style={styles.bottomContainer}>
       <Card style={styles.mainCard}>
-        <Text style={styles.mainStat}>0</Text>
+        <Text style={styles.mainStat}>{User.days}</Text>
         <Text style={styles.mainHeader}>DAYS REMAINING</Text>
         <Divider bold={true} style={styles.divider} />
-        <Text style={styles.mainStat}>0</Text>
+        <Text style={styles.mainStat}>{User.worn}</Text>
         <View>
         <Text style={styles.mainHeader}>HOURS WORN</Text>
         <Text style={styles.mainToday}>TODAY</Text>
         </View>
         <Divider bold={true} style={styles.divider} />
-        <Text style={styles.mainStat}>0</Text>
+        <Text style={styles.mainStat}>{User.remaining}</Text>
         <Text style={styles.mainHeader}>HOURS{'\n'}REMAINING</Text>
         <Divider bold={true} style={styles.divider} />
-        <IconButton
-          icon="plus"
-          iconColor={"white"}
-          backgroundColor={"#1D637A"}
-          size={40}
-          style={{alignSelf: "center",}}
-        />
-      
+        <MenuPop forceAnUpdate={() => setForceUpdate(true)} />
         </Card>
         </View>
         </View>
@@ -70,7 +124,7 @@ const Home = ({ navigation }) => {
     headers: {
       justifyContent: 'flex-start',
       alignItems:'center',
-      height: '35%',
+      height: '30%',
       paddingTop: '6%',
     },
     headText: {
@@ -94,11 +148,12 @@ const Home = ({ navigation }) => {
     mainCard: {
       minWidth: '100%',
       height: '100%',
-      paddingTop: "10%",
+      paddingTop: "5%",
       borderRadius: 50,
       alignItems: "center",
       justifyContent: "space-evenly",
-      paddingBottom: "10%"
+      paddingBottom: "10%",
+      backgroundColor: "white"
     },
     forms: {
       minWidth: "80%",
@@ -130,7 +185,6 @@ const Home = ({ navigation }) => {
     },
     health: {
       fontSize: 20,
-      color: "#20D78A",
       fontWeight: "bold"
     },
     mainStat: {
@@ -159,6 +213,12 @@ const Home = ({ navigation }) => {
       color: "white",
       fontSize: 16,
       fontWeight: "bold"
+    },
+    lower: {
+      width: "100%",
+      alignItems: "center",
+      alignSelf: "center",
+      flexDirection: "row",
     }
   })
   export default Home;

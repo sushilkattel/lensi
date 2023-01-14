@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
 import { ActivityIndicator } from 'react-native';
 import { signInWithEmailAndPassword } from "firebase/auth";
+import { authUser } from '../config/firebase';
 import { auth } from '../config/firebase';
 
 import {
@@ -20,17 +21,18 @@ const Login = ({ navigation }) => {
 
   const handleLogin = () => {
     if (email !== '' && password !== '') {
-      setLoading(true);
-      signInWithEmailAndPassword(auth, email, password)
-        .then(() => {
-          setLoading(false)
-        })
-        .catch((err) => {
-          setLoading(false);
+      try{
+      setLoading(true)
+      authUser(email, password).then(() => {
+        setLoading(false)
+      })}
+      catch(err) {
+        setLoading(false);
         setError(err.message)
-        });
+      };
     }
   };
+
 
   return (
     <PaperProvider style={styles.container}>
@@ -53,6 +55,7 @@ const Login = ({ navigation }) => {
           label="Email"
           value={email}
           onChangeText={setEmail}
+          textColor = "black"
           mode="outlined"
           style={styles.forms}
         />
@@ -60,6 +63,7 @@ const Login = ({ navigation }) => {
           label="Password"
           value={password}
           onChangeText={setPassword}
+          textColor = "black"
           mode="outlined"
           style={styles.forms}
           secureTextEntry
@@ -121,14 +125,16 @@ const Login = ({ navigation }) => {
       width: '100%',
       height: '100%',
       paddingTop: "10%",
-      borderRadius: 50
+      borderRadius: 50,
+      backgroundColor: "white"
     },
     forms: {
       minWidth: "80%",
       maxWidth: "80%",
       marginBottom: 20,
       alignSelf: 'center',
-      borderRadius: 50
+      borderRadius: 50,
+      backgroundColor: "white",
     }
   })
   export default Login;

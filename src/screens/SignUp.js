@@ -22,7 +22,15 @@ const SignUp = ({ navigation }) => {
 
   const handleSignUp = () => {
     if (email !== '' && password !== '') {
-      registerUser(email, password);
+      try{
+      setLoading(true)
+      registerUser(email, password).then(() => {
+        setLoading(false)
+      })}
+      catch(err) {
+        setLoading(false);
+        setError(err.message)
+      };
     }
   }
 
@@ -115,7 +123,8 @@ const SignUp = ({ navigation }) => {
       width: '100%',
       height: '100%',
       paddingTop: "10%",
-      borderRadius: 50
+      borderRadius: 50,
+      backgroundColor: "white"
     },
     forms: {
       minWidth: "80%",
